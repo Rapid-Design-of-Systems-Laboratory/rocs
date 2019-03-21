@@ -1,0 +1,362 @@
+function [m_prop, m_final, T_required, exit_flag] = gravityturn(X0, Isp, CL, CD, S, alt_target,vel_target,Tmax,omega_mag,r_planet,mu_planet)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%DESCRIPTION:
+%
+%Determines the thrust to achieve a target altitude given an initial state 
+%and full 3DOF EOMs in an inertial frame to account for rotation and a 
+%spherical planet
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%INPUTS:
+% X0: Initial Inertial State Vector [x; y; z; xdot; ydot; zdot; mass]=[r; v] [m; m/s]
+% Isp: Specific Impulse [s]
+% CL: Coefficient of Lift [-]
+% CD: Coefficient of Drag [-]
+% S: Reference Area [m^2]
+% alt_target: Target Altitude [m]
+% vel_target: Relative Velocity Magnitude [m/s]
+% Tmax: Maximum Thrust Level [N]
+% omega_mag: Planetary Rotation Rate [rad/s]
+% r_planet: Planet Surface Radius [m]
+% mu_planet: Gravitational Parameter of the Planet [kg-m^3/s^2]
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%OUTPUTS:
+%
+% m_prop: Propellant mass [kg]
+% m_final: Final vehicle mass [kg]
+% T_required: Thrust required to achieve desired altitude at desired
+%             velocity [N]
+% exit_flag: 1 = Nominal; 0 = Not Converged
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%TEST CASE&&&&&&&&
+options = odeset('Events',@events);
+tspan = [0 2000];
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%User Adjustable Parameters
+alt_tolerance = 0.1;    %Convergence Altitude Tolerance
+Tguess = Tmax/2;        %Initial Guess for the Thrust Based on the Maximum Thrust
+MaxIter = 1000;         %Maximum Number of Iterations for the Newton Iteration
+timestep = 0.01;        %Timestep for Integration
+
+%Initialize Parameters
+T = Tguess;
+alt_final = alt_tolerance + 1000;
+iter = 0;
+alt_track = zeros(MaxIter,1);
+T_track = zeros(MaxIter,1);
+omega = omega_mag*[0;0;1];
+
+while abs(alt_final-alt_target) > alt_tolerance && iter < MaxIter
+
+    T
+    
+    %Determine final altitude for given thrust
+    [t,X,te,Xe,ie] = ode45(@gravityturn_propagation,tspan,X0,options,T,Isp,CL,CD,S,vel_target);
+    
+    r_ii_final = Xe(1:3,1);
+    r_ii_mag_final = norm(r_ii_final);
+    alt_final = r_ii_mag_final - r_planet;
+    
+    v_ii_final = Xe(4:6,1);
+    v_ii_mag_final = norm(v_ii_final);
+    v_pp_final = v_ii_final - cross(omega,r_ii_final);
+    v_pp_mag_final = norm(v_pp_final);
+    
+    m_final = Xe(7,1);
+    m_prop = X0(7,1) - Xe(7,1);
+    
+    
+    %Store variables for tracking
+    alt_track(iter+1,1) = alt_final;
+    T_track(iter+1,1) = T;
+    
+    if iter == 0
+        
+        T = 1.01*T; %For the first time through multiply the thrust by 1%
+    
+    else
+
+        %Determine itermidiate vatriables
+        T_new = T_track(iter+1,1);
+        T_old = T_track(iter,1);
+        alt_new = alt_track(iter+1,1);
+        alt_old = alt_track(iter,1);
+        
+        %Check to see if a change in altitude occurred, if not decrease
+        %step size, if so, perform a Newton step
+        if alt_old == alt_new && timestep > 1e-16
+            timestep = timestep/2;
+        elseif timestep < 1e-16
+            exit_flag = 0;
+            return;
+        else
+            dT_dalt = (T_new-T_old)/(alt_new-alt_old);
+            eta = alt_target - alt_new;
+            T = T + dT_dalt*eta;
+        end
+    
+        %If thrust is less than zero, reduce thrust by a factor of 2
+        if T < 0
+            T = Tguess/2;
+            Tguess = Tguess/2;
+        end
+        
+        if T > Tmax
+            T = Tmax * 0.99;
+            Tguess = Tmax * 0.99;
+        end
+            
+    end
+
+    iter = iter + 1;
+end
+
+if (iter == MaxIter || exit_flag == 0)
+    exit_flag = 0;
+    T_required = NaN;
+    m_prop = NaN;
+    m_final = NaN;
+else
+    exit_flag = 1;
+    T_required = T;
+end
+
+return
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [dXdt] = gravityturn_propagation(t,X,T,Isp,CL,CD,S,vel_target,ome)
+
+
+
+
+
+
+
+
+
+
+thrustfactorcurrent = 1;
+gimbalanglecurrent  = 0;
+Cl = 0.0;
+Cd = 0.2;
+ge = 9.806;
+rho = 1.57e-2;
+S = 5.52;
+qbar = 0.5*rho*v^2;
+g = 3.71;
+
+aL      = (qbar*S*Cl)/m + T*thrustfactorcurrent*sin(gimbalanglecurrent)/m;
+aD      = (qbar*S*Cd)/m;
+aT      = T*thrustfactorcurrent*cos(gimbalanglecurrent)/m;
+
+psidot  = (aL - g*sin(psi))/v;
+vdot    = -aD - aT + g*cos(psi);
+hdot    = -v*cos(psi);
+Rdot    = v*sin(psi);
+mdot    = -T*thrustfactorcurrent/(Isp*ge);
+
+dydt    = [psidot; vdot; hdot; Rdot; mdot];
+
+return
+
+function [value,isterminal,direction] = events(t,X,T,Isp,CL,CD,S,vel_target)
+
+value = y(2)-vf;
+isterminal = 1;
+direction = -1;
+
+return
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% function [calcs] = traj_calcs(in,t,y,step)
+% 	
+%   pos_ii = y(1:3); % Inertial position
+%   pos_ii_mag = norm(pos_ii); % Inertial position magnitude
+%   vel_ii = y(4:6); % Inertial velocity
+%   vel_ii_mag = norm(vel_ii); % Inertial velocity magnitude
+%   alt = pos_ii_mag - in.planet.re; % Altitude
+%   [rho,pres] = get_rho_pres(in,alt); % Density
+%   mass = y(7); % Mass
+%   
+%   % Inertial to planet relative transformation
+%   rot_angle = norm(in.planet.omega)*(t+in.t0); % Rotation angle [rad]
+%   L_PI = [ cos(rot_angle) sin(rot_angle) 0; ...
+%           -sin(rot_angle) cos(rot_angle) 0; ...
+%                         0              0 1];
+%   
+%   pos_ii_hat = pos_ii/pos_ii_mag; % Inertial position vector direction
+%   h_ii = cross(pos_ii,vel_ii); % Inertial angular momenum vector [m^2/s]
+%   h_ii_mag = norm(h_ii); % Magnitude of inertial angular momenum vector [m^2/s]
+%   pos_pp = L_PI*pos_ii; % Position vector planet/planet [m]
+%   pos_pp_mag = norm(pos_pp);
+%   vel_pp = L_PI*(vel_ii - cross(in.planet.omega,pos_ii)); % Velocity vector planet/planet [m/s]
+%   vel_pp_mag = norm(vel_pp);
+%   vel_pp_hat = vel_pp/norm(vel_pp);
+%   h_pp = cross(pos_pp,vel_pp);
+%   h_pp_mag = norm(h_pp);
+%   h_pp_hat = h_pp/h_pp_mag;
+%   
+%   % Dynamic pressure
+%   q = 1/2*rho*vel_pp_mag^2;
+% 
+%   % Mach
+%   a = sqrt(in.planet.gamma*pres/rho);
+%   mach = vel_pp_mag/a;
+% 
+%   % Obtain guidance values
+%   bank = 0; % Bank angle [deg]
+%   alpha = 0; % Angle of attack [deg]
+%   thrust_pp = -T*(vel_pp/vel_pp_mag);
+%   thrust_ii = L_PI'*thrust_pp; % Inertial thrust vector [N]
+%   delta_mass = 0; % Mass drop
+% 
+%   %%%%%%%%%%%%%%%
+%   %% Aero Data %%
+%   %%%%%%%%%%%%%%%
+% 
+%   [Cd,Cl] = get_CD_CL(in,alpha); % Drag coefficient
+%   A = pi*(in.aero.base_diameter/2)^2; % Reference area of vehicle [m^2]
+% 
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   %% Vectors and Rotation Tensors of Interset %%
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%   n1 = skew(-h_pp_hat);
+%   R1 = eye(3) + sind(90)*n1 + (1-cosd(90))*n1*n1;
+%   n2 = skew(vel_pp_hat);
+%   R2 = eye(3) + sind(bank)*n2 + (1-cosd(bank))*n2*n2;
+% 
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   %% Vehicle Aerodynamic Force Calculations %%
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%   drag_pp_hat = -vel_pp_hat; % Planet relative drag force direction
+%   drag_pp = q*Cd*A*drag_pp_hat; % Planet relative drag force vector
+%   lift_pp_hat = R2*R1*vel_pp_hat; % Planet relative lift force direction
+%   lift_pp = q*Cl*A*lift_pp_hat; % Planet relative lift force vector
+%   drag_ii = L_PI'*drag_pp; % Inertial drag force vector
+%   lift_ii = L_PI'*lift_pp; % Inertial lift force vector
+% 
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   %% Gravity Force Calculation %%
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%   gravity_ii_mag = in.planet.g0*mass*(in.planet.re^2/(alt+in.planet.re)^2);
+%   gravity_ii = gravity_ii_mag*(-pos_ii_hat); % Inertial gravity force [N]
+% 
+%   %%%%%%%%%%%%%%%%%
+%   %% Total Force %%
+%   %%%%%%%%%%%%%%%%%
+% 
+%   % Total inertial external force vector on body [N]
+%   force_ii = drag_ii + lift_ii + gravity_ii + thrust_ii;
+% 
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   %% Additional Calculations %%
+%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%   % Inertial flight path angle
+%   gamma_ii = acos(h_ii_mag/(pos_ii_mag*vel_ii_mag));
+%   if dot(pos_ii,vel_ii) < 0
+%       gamma_ii = -gamma_ii;
+%   end
+% 
+%   % Relative flight path angle
+%   gamma_pp = acos(h_pp_mag/(pos_pp_mag*vel_pp_mag));
+%   if dot(pos_pp,vel_pp) < 0
+%       gamma_pp = -gamma_pp;
+%   end
+%   
+%   % G-loading
+%   g_loading = (norm(force_ii)/mass)/in.const.g0_earth;
+% 
+%   % Compute latitude and longitude
+%   lat = asin(pos_pp(3)/pos_pp_mag);
+%   long = asin(pos_pp(2)/sqrt(pos_pp(1)^2+pos_pp(2)^2));
+%   % Quadrant check on longitude
+%   if pos_pp(1) < 0
+%     if pos_pp(2) > 0
+%       long = pi - long;
+%     elseif pos_pp(2) < 0
+%       long = -pi - long;
+%     end
+%   end
+% 
+%   % Compute SEZ planet relative velocity vector
+%   a = -1*long;
+%   b = -1*(pi/2 - lat);
+%   v_sez = [cos(a)*cos(b)*vel_pp(1)-sin(a)*cos(b)*vel_pp(2)+sin(b)*vel_pp(3); ...
+%     sin(a)*vel_pp(1)+cos(a)*vel_pp(2); ...
+%     -cos(a)*sin(b)*vel_pp(1)+sin(a)*sin(b)*vel_pp(2)+cos(b)*vel_pp(3)];
+% 
+%   % Compute planet relative heading angle
+%   zeta = asin(v_sez(2)/sqrt(v_sez(1)^2+v_sez(2)^2));
+%   azi_pp = pi - zeta;
+%   if v_sez(1) < 0
+%     if v_sez(2) > 0
+%       azi_pp = zeta;
+%     elseif v_sez(2) < 0
+%       azi_pp = 2*pi + zeta;
+%     end
+%   end
+%   
+%   % Heat rate
+%   rn = in.aero.nose_radius;
+%   k = in.planet.k;
+%   heat_rate = k*sqrt(rho)/sqrt(rn)*vel_pp_mag^3;
+% 
+%   calcs.pos_ii = pos_ii; % Inertial position
+%   calcs.pos_ii_mag = pos_ii_mag; % Inertial position magnitude
+%   calcs.vel_ii = vel_ii; % Inertial velocity
+%   calcs.vel_ii_mag = vel_ii_mag; % Inertial velocity magnitude
+%   calcs.alt = alt; % Altitude
+%   calcs.rho = rho; % Density
+%   calcs.mass = mass; % Mass
+%   calcs.force_ii = force_ii; % Total inertial external force vector
+%   calcs.thrust_ii = thrust_ii; % Total inertial thrust vector
+%   calcs.thrust_pp = thrust_pp; % Total planet relative thrust vector
+%   calcs.pos_pp = pos_pp; % Planet relative position
+%   calcs.pos_pp_mag = pos_pp_mag; % Planet relative position magnitude
+%   calcs.vel_pp = vel_pp; % Planet relative velocity
+%   calcs.vel_pp_mag = vel_pp_mag; % Planet relative velocity magnitude
+%   calcs.gamma_ii = gamma_ii; % Inertial flight path angle
+%   calcs.gamma_pp = gamma_pp; % Planet relative flight path angle
+%   calcs.g_loading = g_loading; % G-loading
+%   calcs.mach = mach; % Mach
+%   calcs.bank = bank; % Bank
+%   calcs.alpha = alpha; % Angle of attack
+%   calcs.LoD = 0;%Cl/Cd; % L/D
+%   calcs.drag_ii_mag = norm(drag_ii);
+%   calcs.lift_ii_mag = norm(lift_ii);
+%   calcs.drag_chute_ii_mag = norm(drag_chute_ii);
+%   calcs.q = q;
+%   calcs.delta_mass = delta_mass;
+%   calcs.azi_pp = azi_pp;
+%   calcs.heat_rate = heat_rate;
+%   
+% return
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% function [rho,press] = get_rho_pres(in,alt)
+% 
+% alts = in.planet.atmo(:,1);
+% pressure = in.planet.atmo(:,3);
+% dens = in.planet.atmo(:,4);
+% atm = interp1q(alts,[dens,pressure],alt);
+% rho = atm(1);
+% press = atm(2);
+% 
+% return
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

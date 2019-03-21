@@ -1,0 +1,35 @@
+function save_fitness_func
+
+% % Open fitness_func.m
+% fid = fopen('fitness_func.m','r');
+% 
+% % Read file
+% index = 0;
+% line = fgets(fid);
+% while line ~= -1
+%   index = index + 1;
+%   eval_objective{index} = line;
+%   line = fgets(fid); % Read next line
+% end
+% 
+% % Save data
+% save('test.mat','eval_objective');
+% 
+% % Close file
+% fclose(fid);
+
+% Extract fitness_func.m
+
+
+% Prepare to write to fitness_func.m
+if exist('fitness_func.m','file')
+  error(['fitness_func.m already exists. Rename fitness_func.m to allow ', ...
+    'a new one to be created.']);
+else
+  fid = fopen('fitness_f
+end
+
+
+
+return
+

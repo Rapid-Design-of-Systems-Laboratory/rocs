@@ -1,0 +1,23 @@
+% In Range vs. Alt vs. G directory:
+% plot_pareto_fronts('results.mat','results_constrained_2d',{'3D Pareto Surface
+% Projection','2D Pareto Front'},[1 2],[1 2])
+
+function compare_pareto_fronts
+
+clear all; pack; close all; clc;
+
+% Make plot from 3D data
+plot_pareto_front('results.mat','b.',[1 2]);
+
+hold on;
+grid on;
+
+plot_pareto_front('results_constrained_2d','r.');
+
+title('Pareto Front');
+xlabel('-Altitude');
+ylabel('Range Ellipse Length');
+legend('3D Pareto Surface Projection','2D Pareto Front');
+
+return
+

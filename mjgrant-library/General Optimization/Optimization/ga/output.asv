@@ -1,0 +1,53 @@
+function [] = output(in,od)
+%
+% [] = output(in,od)
+%
+% This function is used to allocate memory locations for matrices and
+% initialize scalar values.
+%
+% Input:
+%   in - structure containing inputs from input deck
+%   od - structure containing variables of interest during 
+%                optimization
+%
+% Output:
+%   None. Although no values are returned to a calling function, output is
+%   printed to the screen and the results are stored in results.mat.
+%
+
+% Author: Michael J. Grant - NASA/JSC/DM42 in Jan. 2006
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% Optimization Stats %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Execution time
+fprintf('\n\nTime elapsed: %g',od.time);
+
+%%%%%%%%%%
+%% Data %%
+%%%%%%%%%%
+
+% Determine iteration with best individual - C
+I = min(find(od.best_fit == max(od.best_fit)));
+
+% Choose first instance where saw best individual
+I = min(I);
+
+% Determine individual in iteration with optimal value
+p = od.best_member(1,I)
+
+p = find(od.fit(1,:,I) == max(od.fit(1,:,I)));
+p = min(p); % Choose first instance
+fprintf('\nBest Fitness Attained in Iteration %d out of %d',I,od.iter);
+fprintf('\nBest Fitness Value: %g',od.best_fit(I));
+fprintf('\nTrade Space Location:\n');
+fprintf('      %g\n',od.pop(:,p,I));
+fprintf('\n\n');
+
+% Save results to binary file
+save('results.mat','od','in');
+
+return
+

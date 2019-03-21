@@ -1,0 +1,18 @@
+function [value,isterminal,direction] = event_func(t,y)
+
+%%%%%%%%%%%%
+%% Inputs %%
+%%%%%%%%%%%%
+
+h = y(3); % Altitude
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Assign Event Values %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+value = h;
+isterminal = 1; % Terminate at h = 0
+
+return
+

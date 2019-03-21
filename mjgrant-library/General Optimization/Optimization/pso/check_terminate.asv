@@ -1,0 +1,39 @@
+function [terminate] = check_terminate(in,od)
+%
+% [terminate] = check_terminate(in,od)
+%
+% This function determines if the optimization process should be
+% terminated. Both the user inputs and optimization data are passed to this
+% function in order to provide various means by which to terminate the
+% optimization algorithm.
+%
+% Input:
+%   in - structure containing inputs from input deck
+%   od - structure containing variables of interest during 
+%                optimization
+%
+% Output:
+%   terminate - boolean signifying if the optimization algorithm should
+%               terminate
+%
+
+% Author: Michael J. Grant - NASA/JSC/DM42 in Jan. 2006
+
+
+% Initialize terminate boolean
+terminate = false;
+
+% Determine if fitness converging
+% Use <= so if optimal fitness value is zero, will converge
+if (od.iter > in.del_iter) && (sum(abs(diff((od.best_fit(od.iter-...
+    in.del_iter:od.iter))))) <= in.per_fit*od.best_fit(od.iter))
+  terminate = true;
+end
+
+% Determine if optimization algorithm reached maximum number of iterations
+if (od.iter == in.max_iter)
+  terminate = true;
+end
+
+return
+

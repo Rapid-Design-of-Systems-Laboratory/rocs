@@ -1,0 +1,61 @@
+--------------------------------------
+Installation Instructions for GPOPS-II
+--------------------------------------
+
+The installation instructions for GPOPS-II are as follows:
+
+(1) Unpack the zip file in a location that is convenient for you to place the GPOPS-II code.
+    This directory is referred to as $gpops2 (for example, in Windows this might be conveniently 
+    located in c:\Documents\MATLAB\gpops2 while in Mac OS-X this might be conveniently located 
+    in /Users/my-user-name/Documents/MATLAB).
+(2) From within MATLAB, change to the $gpops2 directory and run the file gpopsMatlabPathSetup.m
+(3) If you have write permissions to the file pathdef.m, then the GPOPS-II directories should have been 
+    added permanently to your MATLAB path.  If you do not have writen permissions to your MATLAB path, 
+    then you will need to add the GPOPS-II directories (which were printed to the screen when you ran
+    gpopsMatlabPathSetup.m) to your MATLAB startup.m file.  The location of your startup.m file depends 
+    upon your operating system (for example, in Microsoft Windows the home working directory is 
+    c:\Documents\MATLAB while in Mac OS-X the home working directory is /home/username/Documents/MATLAB).
+
+Upon completion of Steps 1 - 3 above, the following GPOPS-II directories should have been added to your
+MATLAB path:
+
+       $gpops2/R2-May-2014/lib/gpopsRPMIntegration/gpopsSnoptRPMI/
+       $gpops2/R2-May-2014/lib/gpopsRPMIntegration/gpopsIpoptRPMI/
+       $gpops2/R2-May-2014/lib/gpopsRPMIntegration/
+       $gpops2/R2-May-2014/lib/gpopsRPMDifferentiation/gpopsSnoptRPMD/
+       $gpops2/R2-May-2014/lib/gpopsRPMDifferentiation/gpopsIpoptRPMD/
+       $gpops2/R2-May-2014/lib/gpopsRPMDifferentiation/
+       $gpops2/R2-May-2014/lib/gpopsFiniteDifference/
+       $gpops2/R2-May-2014/lib/gpopsADiGator/
+       $gpops2/R2-May-2014/lib/gpopsAutomaticScaling/
+       $gpops2/R2-May-2014/lib/gpopsMeshRefinement/
+       $gpops2/R2-May-2014/lib/gpopsCommon/
+       $gpops2/R2-May-2014/gpopsUtilities/
+       $gpops2/R2-May-2014/license/
+       $gpops2/R2-May-2014/nlp/ipopt/
+
+Thus, if you would like to add these directories each time MATLAB starts and do not have permission
+to write to the master path definition file pathdef.m, you can add the directories mannually using
+the command "addpath" in MATLAB as
+
+    addpath('$gpops2/R2-May-2014/lib/gpopsRPMIntegration/gpopsSnoptRPMI/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsRPMIntegration/gpopsIpoptRPMI/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsRPMIntegration/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsRPMDifferentiation/gpopsSnoptRPMD/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsRPMDifferentiation/gpopsIpoptRPMD/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsRPMDifferentiation/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsFiniteDifference/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsADiGator/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsAutomaticScaling/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsMeshRefinement/');
+    addpath('$gpops2/R2-May-2014/lib/gpopsCommon/');
+    addpath('$gpops2/R2-May-2014/gpopsUtilities/');
+    addpath('$gpops2/R2-May-2014/license/');
+    addpath('$gpops2/R2-May-2014/nlp/ipopt/');
+
+where it is noted again that $gpops2 is the home directory of your GPOPS-II installation. 
+
+Finally, it is noted that the above installation instructions do not include the installation
+of the open-source automatic differentiation software AdiGator.  If you are interested in using
+AdiGator with GPOPS-II, please vist the ADiGator website at 
+http://www.sourceforge.net/projects/adigator and follow the ADiGator setup instructions. 

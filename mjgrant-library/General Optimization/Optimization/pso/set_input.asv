@@ -1,0 +1,105 @@
+function [in] = set_input
+%
+% [in] = set_input
+%
+% This function acts as the interface between the user and the optimization
+% algorithms. This function serves as an input deck for all inputs that
+% govern the optimization algorithms.
+%
+% Input:
+%   None.
+%
+% Output:
+%   in - structure containing inputs that are passed to the
+%         optimization algorithm
+%
+
+% Author: Michael J. Grant - NASA/JSC/DM42 in Jan. 2006
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% Input Parameters %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Optimization library path
+in.path = ['D:\Documents and Settings\mjgrant.JSC\My Documents\Mike\' ...
+  'Grad Co-op Tour 1\Optimization Compilation\Library'];
+
+% Determine method
+in.method = 'pso';
+
+% Determine optimality
+in.maximization = false;
+
+% Number of individuals in population
+in.num_ind = 50;
+
+% Maximum number of iterations to perform
+in.max_iter = 1000;
+
+% Upper bounds of trade-space
+in.pos_max = 10*ones(1,7)';
+
+% Lower bounds of trade-space
+in.pos_min = -10*ones(1,7)';
+
+% Random number generator seed (empty to not specify seed)
+in.seed = 0;
+
+% Termination criteria: Percent fitness -- Determines how much fitness may vary
+% over the fitness integral for a given number of iterations.
+in.per_fit = -.01; %0.001;
+
+% Termination criteria: Determines number of iterations taken in fitness
+% integral
+in.del_iter = 10;
+
+% Number of neighbors that will communicate with each individual
+in.num_nbr = in.num_ind-1;
+
+% Lower bound of velocity
+in.vel_min = 1/2*in.pos_min;
+
+% Upper bound of velocity
+in.vel_max = 1/2*in.pos_max;
+
+% Individuality parameter
+in.c1 = 2.0;
+
+% Sociality parameter
+in.c2 = 2.0;
+
+% Constriction factor to limit velocity. Velocity is explicitly limited in code
+%  via delta_min and delta_max. Hence, X is not necessary but is retained for
+%  future problems. Setting X = 1 does not influence the velocity of the
+%  particles.
+in.X = 1;
+
+% Inertia Type - Governs type of inertia decay.
+% Options: 'linear' = linear decay (only need in.w_init)
+%          'quadratic' = quadratic decay (only need in.w_init)
+%          'cov' = coefficient of variance step decay (need all listed)
+in.w_type = 'cov';
+
+% Percentage of top individuals taken for COV calculation
+in.cov_per = 0.2;
+
+% Coefficient of variance tolerance to modify inertia
+in.cov_tol = 0.02;
+
+% Inertia geometric factor (<1)
+in.w_factor = 0.975;
+
+% Initial inertia value
+in.w_init = 1.4;
+
+%%%%%%%%%%%%%%%%%%%%
+%% Path Execution %%
+%%%%%%%%%%%%%%%%%%%%
+
+% Add paths to optimization directory and corresponding algorithm
+addpath(in.path);
+addpath([in.path,'/',in.method]);
+
+return
+

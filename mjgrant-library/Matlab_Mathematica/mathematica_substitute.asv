@@ -1,0 +1,38 @@
+function [syms_str_out] = mathematica_substitute(syms_str_in,var1,var2)
+
+[m,n] = size(syms_str_in);
+syms_str_out = sym(nan(m,n));
+
+% Assign varibles in Mathematica environment
+for ctr = 1 : 1 : length(var1)
+  math(['InputForm[', matlab2math_str(char(var1(ctr))) ...
+      ,' = ',matlab2math_str(char(var2(ctr))),']']);
+end
+
+for ctr1 = 1 : 1 : m
+for ctr2 = 1 : 1 : n
+
+  % Convert to Mathematica string
+  integrand_math = matlab2math_str(char(syms_str_in(ctr1,ctr2)));
+  
+  % Integrate in Mathematica
+  integrand_int_math = math(['InputForm[Simplify[', ...
+    integrand_math,',Assumptions -> {',assumptions,'}]]']);
+  
+  % Convert back to Matlab symbolic variables
+  integrand_int_str = math2matlab_str(integrand_int_math);
+  syms_str_out(ctr1,ctr2) = sym(integrand_int_str);
+  
+%   math('quit');
+%   pause(1);
+  
+end
+end
+
+% Clear variables in Matlab environment
+for ctr = 1 : 1 : length(var1)
+  math(['InputForm[Clear[', matlab2math_str(char(var1(ctr))) ...,']]']);
+end
+
+return
+  

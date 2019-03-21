@@ -1,0 +1,43 @@
+function output = spaceStationEndpoint(input)
+
+omegaf = input.phase.finalstate(1:3);
+rf = input.phase.finalstate(4:6);
+hf = input.phase.finalstate(7:9);
+u  = zeros(1,3);
+
+N = 1;
+
+J=input.auxdata.J;
+omegaorb = input.auxdata.omegaorb;
+Jinv=input.auxdata.Jinv;
+A = omegaf*J;
+B=cross(omegaf,A,2);
+D=2./(1+dot(rf,rf,2));
+e1=[-1,rf(3),-rf(2)];
+e2=[-rf(3),-1,rf(1)];
+e3=[rf(2),-rf(1),-1];
+f1=cross(rf,e1,2);
+f2=cross(rf,e2,2);
+f3=cross(rf,e3,2);
+C1=[f1(1).*D+1,f1(2).*D,f1(3).*D];
+C2=[f2(1).*D,f2(2).*D+1,f2(3).*D];
+C3=[f3(1).*D,f3(2).*D,f3(3).*D+1];
+I=[C3*J];
+C3crossJC3=cross(C3,I,2);
+threeomegaorbsq=3*(omegaorb^2);
+taugg=threeomegaorbsq*C3crossJC3;
+K=taugg-B-u;
+Jinv = input.auxdata.Jinv;
+omegadotf=K*Jinv;
+omegaorf=-omegaorb.*C2;
+omegaminusomegaor = omegaf-omegaorf;
+l1=[rf(1).^2+1,rf(2).*rf(1)+rf(3),rf(3).*rf(1)-rf(2)];
+l2=[rf(1).*rf(2)-rf(3),rf(2).^2+1,rf(3).*rf(2)+rf(1)];
+l3=[rf(1).*rf(3)+rf(2),rf(2).*rf(3)-rf(1),rf(3).^2+1];
+rdotf1=0.5*[l1(1).*omegaminusomegaor(1)+l2(1).*omegaminusomegaor(2)+l3(1).*omegaminusomegaor(3)];
+rdotf2=0.5*[l1(2).*omegaminusomegaor(1)+l2(2).*omegaminusomegaor(2)+l3(2).*omegaminusomegaor(3)];
+rdotf3=0.5*[l1(3).*omegaminusomegaor(1)+l2(3).*omegaminusomegaor(2)+l3(3).*omegaminusomegaor(3)];
+rdotf = [rdotf1,rdotf2,rdotf3];
+hmagfsq = dot(hf,hf,2);
+output.eventgroup(1).event = [omegadotf,rdotf];
+output.objective = 1e-6*input.phase.integral;

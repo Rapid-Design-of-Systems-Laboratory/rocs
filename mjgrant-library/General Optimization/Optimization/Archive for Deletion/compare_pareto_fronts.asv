@@ -1,0 +1,97 @@
+function compare_pareto_fronts(mat1,mat2,legend_str,dim1,dim2)
+%
+% This function is used to compare Pareto fronts.
+%
+
+% Author: NASA JSC/DM42 - Michael J. Grant in July 2006
+
+
+% Originally use 1.) results.mat and 2.) results_constrained_2d
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Load Data and Build Pareto Front %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Load optimization data from mat1
+data = load(mat1);
+in = data.in;
+od = data.od;
+
+% Input logic regarding mat1
+if ~exist('dim1','var') || isempty(dim1)
+  dim1 = 1 : 1 : in.num_obj
+end
+
+% Build Pareto front from mat1
+pareto_front1 = build_pareto_front(od.fit(:,:,1:od.iter));
+
+% Load optimization data from mat2
+data = load(mat2);
+in = data.in;
+od = data.od;
+
+% Input logic regarding mat1
+if ~exist('dim1','var') || isempty(dim1)
+  dim1 = 1 : 1 : in.num_obj
+end
+
+% Build Pareto front from mat2
+pareto_front1 = build_pareto_front(od.fit(:,:,1:od.iter));
+
+%%%%%%%%%%%%%%%%%
+%% Error Check %%
+%%%%%%%%%%%%%%%%%
+
+% Check dimensions for plotting
+if (length(dim1) > 3) || (length(dim2) > 3)
+  error(['dim1 or dim2 is too large. Either error in input or number of ', ...
+    'objectives is too large to plot in 3D if no input was specified.']);
+end
+
+% Check legend cell array
+if exist('legend_s','var') && length(legend) > 2
+  error('Legend must be a cell array with length 2.');
+end
+
+%%%%%%%%%%%
+%% Plots %%
+%%%%%%%%%%%
+
+% Plot Pareto front from mat1
+if length(dim1) == 2
+  plot(pareto_front1(dim1(1),:),pareto_front1(dim1(2),:),'b.');
+else
+  plot3(pareto_front1(dim1(1),:),pareto_front1(dim1(2),:), ...
+    pareto_front1(dim1(3),:),'b.');
+end
+
+hold on;
+grid on;
+
+% Plot Pareto front from mat2
+if length(dim2) == 2
+  plot(pareto_front2(dim2(1),:),pareto_front2(dim2(2),:),'b.');
+else
+  plot3(pareto_front2(dim2(1),:),pareto_front2(dim2(2),:), ...
+    pareto_front2(dim2(3),:),'b.');
+end
+
+% Construct legend string
+if ~exist('legend','var')
+  % Assume legend name
+  legend = {mat1,mat2};
+end
+
+% Add legend if legend variable is not empty
+if ~isempty(legend)
+  legend('
+
+%   plot3(pareto_front(1,:),pareto_front(2,:),pareto_front(3,:),'b.');
+% view(0,90);
+% hold on;
+% plot(pareto_front(1,:),pareto_front(2,:),'r.');
+% legend('3D Pareto Surface Projection','2D Pareto Front');
+
+return
+

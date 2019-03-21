@@ -1,0 +1,67 @@
+function analyze_results_3d
+
+clear all; close all; clc;
+
+%%%%%%%%%%%%%%%%%
+%% Import Data %%
+%%%%%%%%%%%%%%%%%
+
+load('results.mat');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Plot Pareto Surface %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+figure;
+set(gcf,'color','white');
+set(gcf,'Position',[1 31 1023 663]);
+
+pos1 = [0.05 0.50 0.46 0.45];
+pos2 = [0.08 0.06 0.33 0.33];
+pos3 = [0.58 0.50 0.40 0.45];
+pos4 = [0.50 0.08 0.33 0.33];
+pos5 = [0.83 0.08 0.15 0.30];
+
+% for counter = 1 : 1 : od.iter
+% 
+%   % Plot front in trade space
+%   subplot('position',pos1); hold on; set(gca,'box','on')
+%   title('Evolution of Pareto Front and Swarm - Trade Space');
+%   xlabel('x'); ylabel('y');
+%   axis([in.pos_min(1) in.pos_max(1) in.pos_min(2) in.pos_max(2)]);
+%   % Plot front
+%   h1 = plot(od.pos_arch(1,:,counter),od.pos_arch(2,:,counter),'b.');
+%   % Plot swarm
+%   h2 = plot(od.pop(1,:,counter),od.pop(2,:,counter),'rx');
+% 
+%   % Plot front in fitness space
+%   subplot('position',pos3);
+%   % Plot front
+%   h3 = plot3(od.fit_arch(1,:,counter),od.fit_arch(2,:,counter), ...
+%     od.fit_arch(3,:,counter),'b.');
+%   hold on; grid on; set(gca,'box','on')
+%   % Plot swarm
+%   h4 = plot3(od.fit(1,:,counter),od.fit(2,:,counter),od.fit(3,:,counter),'rx');
+% %   axis([-800 0 -80 80]);
+%   
+%   % Create "subplot" of text information
+%   % Move these up above later
+%   subplot('position',pos5); set(gca,'Visible','off'); hold on;
+%   h5 = text(0.1,0.8,['Iteration: ',num2str(counter)]);
+% 
+%   % Pause and delete, if necessary
+%   if counter ~= od.iter
+%     pause(0.1);
+%     delete(h1,h2,h3,h4,h5)
+%   end
+% 
+% end
+
+plot3(od.fit_arch(1,:,od.iter),od.fit_arch(2,:,od.iter), ...
+     od.fit_arch(3,:,od.iter),'b.');
+xlabel('f1');
+ylabel('f2');
+zlabel('f
+
+return
+

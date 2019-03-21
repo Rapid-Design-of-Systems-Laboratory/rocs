@@ -1,0 +1,18 @@
+Hey guys,
+
+Just thought I'd pass along a little MATLAB code that I had a chance to write this afternoon.  It illustrates what happens when you try to find a concave Pareto frontier using optimization on a simple additive weighting scheme vs. what happens when you use the infinity (Tchebycheff) norm.  Thought there might be bits of code that might make life easier for you in the future.
+
+If you run it, you'll get three figures:
+Fig. 2 shows the full data set of 2,749 points in the objective space, with a concave Pareto frontier (the positive ideal solution is at [1,1]).
+Fig. 3 shows the Pareto-optimal points that are resolved when using simple additive weighting.
+Fig. 4 shows the Pareto-optimal points that are resolved when using the weighted Tchebycheff norm.
+
+The results are indisputable.  :-)
+
+(But if you have any disputes, do let me know.)
+
+Jarret M. Lafleur
+NASA Johnson Space Center / EG5
+Building 16, Room 102
+E-mail:  jarret.m.lafleur@nasa.gov
+Phone:  (281) 483-1726
