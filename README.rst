@@ -6,11 +6,12 @@ Rapid Optimal Control Software with UTM Implementation
 :Contact: mjgrant@auburn.edu
 :URL: https://github.com/Rapid-Design-of-Systems-Laboratory/rocs
 
+Cite: Mall, K., Grant, M. J., and Taheri, E., “Uniform Trigonometrization Method for Optimal Control Problems with Control Bounds and State Path Constraints,” Journal of Spacecraft and Rockets.
 
 Description
 ----------------
 
-This repository contains the necessary library and source files needed to setup, run, and solve complicated optimal control problems (OCPs) using the Unified Trigonometrization Method (UTM). A detailed documentation for this UTM framework is in progress. Sample results genertated for a Mars aerocapture problem using this framework are shown below. 
+This repository contains the necessary library and source files needed to setup, run, and solve complicated optimal control problems (OCPs) using the Uniform Trigonometrization Method (UTM). A detailed documentation for this UTM framework is in progress. Sample results genertated for a Mars aerocapture problem using this framework are shown below. 
 
 .. image:: ./aerocapture_results.png
    :width: 400
