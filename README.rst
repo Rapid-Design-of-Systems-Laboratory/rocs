@@ -2,9 +2,9 @@
 Unified Trigonometrization Method Version 1.0
 ==============================================================
 
-:Author: Kshitij Mall
-:Contact: mall@auburn.edu
-:URL: https://github.com/kshitijmall/UTM1.0
+:Author: Michael J. Grant, Kshitij Mall, and Thomas Antony
+:Contact: mjgrant@auburn.edu
+:URL: https://github.com/Rapid-Design-of-Systems-Laboratory/rocs
 
 
 Description
