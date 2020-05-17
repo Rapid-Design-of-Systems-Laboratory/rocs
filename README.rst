@@ -1,5 +1,5 @@
 ==============================================================
-Unified Trigonometrization Method Version 1.0
+Rapid Optimal Control Software with UTM Implementation
 ==============================================================
 
 :Author: Michael J. Grant, Kshitij Mall, and Thomas Antony
