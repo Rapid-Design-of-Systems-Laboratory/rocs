@@ -3,10 +3,10 @@ Rapid Optimal Control Software with UTM Implementation
 ==============================================================
 
 :Author: Michael J. Grant, Kshitij Mall, and Thomas Antony
-:Contact: mjgrant@auburn.edu
+:Contact: mall@purdue.edu
 :URL: https://github.com/Rapid-Design-of-Systems-Laboratory/rocs
 
-Cite: Mall, K., Grant, M. J., and Taheri, E., “Uniform Trigonometrization Method for Optimal Control Problems with Control Bounds and State Path Constraints,” Journal of Spacecraft and Rockets.
+Cite: Mall, K., Grant, M. J., and Taheri, E., “Uniform Trigonometrization Method for Optimal Control Problems with Control Bounds and State Path Constraints,” Journal of Spacecraft and Rockets, Vol. 57, No. 5, 2020, pp: 995-1007.
 
 Description
 ----------------
